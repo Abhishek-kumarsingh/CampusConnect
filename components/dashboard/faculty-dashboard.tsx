@@ -27,7 +27,22 @@ const studentRequests = [
   { id: 3, student: "Taylor Brown", type: "Meeting Request", course: "CS 201", date: "May 9" }
 ];
 
-export function FacultyDashboard() {
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  department?: string;
+  studentId?: string;
+  facultyId?: string;
+  isDemo?: boolean;
+}
+
+interface FacultyDashboardProps {
+  user?: User;
+}
+
+export function FacultyDashboard({ user }: FacultyDashboardProps) {
   useEffect(() => {
     AOS.init({
       duration: 800,
@@ -40,7 +55,7 @@ export function FacultyDashboard() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Faculty Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back, Dr. Miller! Here's your teaching overview.</p>
+          <p className="text-muted-foreground">Welcome back, {user?.name || 'Faculty'}! Here's your teaching overview.</p>
         </div>
         <div className="hidden md:flex items-center gap-2">
           <Button variant="outline" size="sm">
@@ -102,7 +117,7 @@ export function FacultyDashboard() {
           <TabsTrigger value="students">Students</TabsTrigger>
           <TabsTrigger value="grading">Grading</TabsTrigger>
         </TabsList>
-        
+
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -137,7 +152,7 @@ export function FacultyDashboard() {
                 <Button variant="ghost" size="sm" className="ml-auto">View full schedule</Button>
               </CardFooter>
             </Card>
-            
+
             {/* Pending Assignments */}
             <Card className="col-span-1">
               <CardHeader>
@@ -160,8 +175,8 @@ export function FacultyDashboard() {
                       </Badge>
                     </div>
                     <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5">
-                      <div 
-                        className="bg-indigo-600 dark:bg-indigo-400 h-1.5 rounded-full" 
+                      <div
+                        className="bg-indigo-600 dark:bg-indigo-400 h-1.5 rounded-full"
                         style={{ width: `${(assignment.submissions / assignment.totalStudents) * 100}%` }}
                       ></div>
                     </div>
@@ -173,7 +188,7 @@ export function FacultyDashboard() {
               </CardFooter>
             </Card>
           </div>
-          
+
           {/* Student Requests */}
           <Card>
             <CardHeader>
@@ -208,7 +223,7 @@ export function FacultyDashboard() {
               <Button variant="ghost" size="sm" className="ml-auto">View all requests</Button>
             </CardFooter>
           </Card>
-          
+
           {/* Forum Activity */}
           <Card>
             <CardHeader>
@@ -248,7 +263,7 @@ export function FacultyDashboard() {
             </CardFooter>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="courses">
           <Card>
             <CardHeader>
@@ -260,7 +275,7 @@ export function FacultyDashboard() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="students">
           <Card>
             <CardHeader>
@@ -272,7 +287,7 @@ export function FacultyDashboard() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="grading">
           <Card>
             <CardHeader>

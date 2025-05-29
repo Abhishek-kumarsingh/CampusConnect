@@ -34,7 +34,22 @@ const discussionUpdates = [
   { id: 2, title: "Study group for Physics midterm", course: "PHYS 201", replies: 7, lastUpdate: "Yesterday" }
 ];
 
-export function StudentDashboard() {
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  department?: string;
+  studentId?: string;
+  facultyId?: string;
+  isDemo?: boolean;
+}
+
+interface StudentDashboardProps {
+  user?: User;
+}
+
+export function StudentDashboard({ user }: StudentDashboardProps) {
   useEffect(() => {
     AOS.init({
       duration: 800,
@@ -47,7 +62,7 @@ export function StudentDashboard() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Student Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back, Alex! Here's what's happening.</p>
+          <p className="text-muted-foreground">Welcome back, {user?.name || 'Student'}! Here's what's happening.</p>
         </div>
         <div className="hidden md:flex items-center gap-2">
           <Button variant="outline" size="sm">
@@ -109,7 +124,7 @@ export function StudentDashboard() {
           <TabsTrigger value="schedule">Schedule</TabsTrigger>
           <TabsTrigger value="forums">Forums</TabsTrigger>
         </TabsList>
-        
+
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -140,7 +155,7 @@ export function StudentDashboard() {
                 <Button variant="ghost" size="sm" className="ml-auto">View all events</Button>
               </CardFooter>
             </Card>
-            
+
             {/* Assignments Summary */}
             <Card className="col-span-1">
               <CardHeader>
@@ -171,7 +186,7 @@ export function StudentDashboard() {
               </CardFooter>
             </Card>
           </div>
-          
+
           {/* Courses Row */}
           <Card>
             <CardHeader>
@@ -204,7 +219,7 @@ export function StudentDashboard() {
               </div>
             </CardContent>
           </Card>
-          
+
           {/* Forum Activity */}
           <Card>
             <CardHeader>
@@ -233,7 +248,7 @@ export function StudentDashboard() {
             </CardFooter>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="assignments">
           <Card>
             <CardHeader>
@@ -245,7 +260,7 @@ export function StudentDashboard() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="schedule">
           <Card>
             <CardHeader>
@@ -257,7 +272,7 @@ export function StudentDashboard() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="forums">
           <Card>
             <CardHeader>

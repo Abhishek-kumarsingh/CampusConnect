@@ -4,6 +4,8 @@ import User from '@/lib/models/User';
 import { verifyPassword, generateToken, DEMO_CREDENTIALS, isDemoAccount, getDemoAccount } from '@/lib/auth';
 import { mockDatabase } from '@/lib/mock-data';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();

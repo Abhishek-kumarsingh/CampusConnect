@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Event from '@/lib/models/Event';
 import { getUserFromRequest } from '@/lib/auth';
+import { mockDatabase } from '@/lib/mock-data';
 
 // POST /api/events/[id]/rsvp - RSVP to event
 export async function POST(
@@ -10,7 +11,7 @@ export async function POST(
 ) {
   try {
     const userPayload = getUserFromRequest(request);
-    
+
     if (!userPayload) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -97,7 +98,7 @@ export async function DELETE(
 ) {
   try {
     const userPayload = getUserFromRequest(request);
-    
+
     if (!userPayload) {
       return NextResponse.json(
         { error: 'Unauthorized' },

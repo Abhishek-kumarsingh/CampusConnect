@@ -1,11 +1,11 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  BarChart, Check, Clock, Flag, ShieldAlert, Users, AlertTriangle, LineChart 
+import {
+  BarChart, Check, Clock, Flag, ShieldAlert, Users, AlertTriangle, LineChart
 } from "lucide-react";
 import { useEffect } from 'react';
 import AOS from 'aos';
@@ -56,7 +56,22 @@ const pendingApprovals = [
   { id: 3, title: "Career Workshop", type: "Event", requester: "Career Center", date: "May 20" },
 ];
 
-export function AdminDashboard() {
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  department?: string;
+  studentId?: string;
+  facultyId?: string;
+  isDemo?: boolean;
+}
+
+interface AdminDashboardProps {
+  user?: User;
+}
+
+export function AdminDashboard({ user }: AdminDashboardProps) {
   useEffect(() => {
     AOS.init({
       duration: 800,
@@ -110,7 +125,7 @@ export function AdminDashboard() {
           <TabsTrigger value="approvals">Approvals</TabsTrigger>
           <TabsTrigger value="settings">System Settings</TabsTrigger>
         </TabsList>
-        
+
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -144,7 +159,7 @@ export function AdminDashboard() {
                     <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
                     <XAxis dataKey="name" className="text-xs text-slate-600 dark:text-slate-400" />
                     <YAxis className="text-xs text-slate-600 dark:text-slate-400" />
-                    <Tooltip 
+                    <Tooltip
                       contentStyle={{
                         backgroundColor: 'hsl(var(--popover))',
                         borderColor: 'hsl(var(--border))',
@@ -159,7 +174,7 @@ export function AdminDashboard() {
                 </ResponsiveContainer>
               </CardContent>
             </Card>
-            
+
             {/* Module Usage Chart */}
             <Card className="col-span-1" data-aos="fade-left">
               <CardHeader>
@@ -181,7 +196,7 @@ export function AdminDashboard() {
                     <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" vertical={false} />
                     <XAxis dataKey="name" className="text-xs text-slate-600 dark:text-slate-400" />
                     <YAxis className="text-xs text-slate-600 dark:text-slate-400" />
-                    <Tooltip 
+                    <Tooltip
                       contentStyle={{
                         backgroundColor: 'hsl(var(--popover))',
                         borderColor: 'hsl(var(--border))',
@@ -196,7 +211,7 @@ export function AdminDashboard() {
               </CardContent>
             </Card>
           </div>
-          
+
           {/* Pending Approvals Card */}
           <Card data-aos="fade-up">
             <CardHeader>
@@ -232,7 +247,7 @@ export function AdminDashboard() {
               <Button variant="ghost" size="sm" className="ml-auto">View all pending items</Button>
             </CardFooter>
           </Card>
-          
+
           {/* System Status */}
           <Card data-aos="fade-up">
             <CardHeader>
@@ -271,7 +286,7 @@ export function AdminDashboard() {
             </CardFooter>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="users">
           <Card>
             <CardHeader>
@@ -283,7 +298,7 @@ export function AdminDashboard() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="approvals">
           <Card>
             <CardHeader>
@@ -295,7 +310,7 @@ export function AdminDashboard() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="settings">
           <Card>
             <CardHeader>

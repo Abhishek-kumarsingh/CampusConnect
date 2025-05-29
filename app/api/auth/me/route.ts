@@ -3,10 +3,12 @@ import connectDB from '@/lib/mongodb';
 import User from '@/lib/models/User';
 import { getUserFromRequest, DEMO_CREDENTIALS } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const userPayload = getUserFromRequest(request);
-    
+
     if (!userPayload) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -18,7 +20,7 @@ export async function GET(request: NextRequest) {
     if (userPayload.userId.startsWith('demo-')) {
       const role = userPayload.userId.replace('demo-', '') as keyof typeof DEMO_CREDENTIALS;
       const demoAccount = DEMO_CREDENTIALS[role];
-      
+
       return NextResponse.json({
         success: true,
         user: {
