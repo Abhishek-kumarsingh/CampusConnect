@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DashboardSidebar } from './dashboard-sidebar';
 import { DashboardHeader } from './dashboard-header';
 import { StudentDashboard } from './student-dashboard';
 import { FacultyDashboard } from './faculty-dashboard';
 import { AdminDashboard } from './admin-dashboard';
+import { cn } from '@/lib/utils';
 
 export type UserRole = 'student' | 'faculty' | 'admin';
 
@@ -27,10 +28,23 @@ interface DashboardShellProps {
 
 export function DashboardShell({ userRole, user }: DashboardShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  const toggleSidebarCollapse = () => setSidebarCollapsed(!sidebarCollapsed);
+
+  // Load sidebar collapse state from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('sidebar-collapsed');
+    if (saved !== null) {
+      setSidebarCollapsed(JSON.parse(saved));
+    }
+  }, []);
+
+  // Save sidebar collapse state to localStorage
+  useEffect(() => {
+    localStorage.setItem('sidebar-collapsed', JSON.stringify(sidebarCollapsed));
+  }, [sidebarCollapsed]);
 
   const renderDashboard = () => {
     switch (userRole) {
@@ -52,12 +66,23 @@ export function DashboardShell({ userRole, user }: DashboardShellProps) {
         user={user}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        isCollapsed={sidebarCollapsed}
+        onToggleCollapse={toggleSidebarCollapse}
       />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <DashboardHeader onMenuClick={toggleSidebar} userRole={userRole} user={user} />
+        <DashboardHeader
+          onMenuClick={toggleSidebar}
+          userRole={userRole}
+          user={user}
+          sidebarCollapsed={sidebarCollapsed}
+        />
 
-        <main className="flex-1 overflow-y-auto pb-10">
+        <main className={cn(
+          "flex-1 overflow-y-auto pb-10 transition-all duration-300",
+          "lg:ml-64", // Default margin for expanded sidebar
+          sidebarCollapsed && "lg:ml-16" // Reduced margin for collapsed sidebar
+        )}>
           <div className="py-6 px-4 sm:px-6 lg:px-8">
             {renderDashboard()}
           </div>

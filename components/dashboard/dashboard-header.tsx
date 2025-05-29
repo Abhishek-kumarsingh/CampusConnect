@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { ModeToggle } from '@/components/mode-toggle';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { UserRole } from './dashboard-shell';
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -17,22 +17,35 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  department?: string;
+  studentId?: string;
+  facultyId?: string;
+  isDemo?: boolean;
+}
+
 interface DashboardHeaderProps {
   onMenuClick: () => void;
   userRole: UserRole;
+  user?: User;
+  sidebarCollapsed?: boolean;
 }
 
-export function DashboardHeader({ onMenuClick, userRole }: DashboardHeaderProps) {
+export function DashboardHeader({ onMenuClick, userRole, user, sidebarCollapsed }: DashboardHeaderProps) {
   const [isSearchActive, setIsSearchActive] = useState(false);
-  
-  // Mock user data - would come from auth context in a real app
-  const userData = {
-    name: userRole === 'student' ? 'Alex Johnson' : 
+
+  // Use real user data or fallback to mock data
+  const userData = user || {
+    name: userRole === 'student' ? 'Alex Johnson' :
           userRole === 'faculty' ? 'Dr. Sarah Miller' : 'Admin User',
     email: `${userRole}@example.com`,
-    avatar: userRole === 'student' ? 
-            'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=150' : 
-            userRole === 'faculty' ? 
+    avatar: userRole === 'student' ?
+            'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=150' :
+            userRole === 'faculty' ?
             'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&w=150' :
             'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=150',
   };
@@ -60,10 +73,10 @@ export function DashboardHeader({ onMenuClick, userRole }: DashboardHeaderProps)
               className="pl-10 w-full"
             />
             {isSearchActive && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 md:hidden" 
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 md:hidden"
                 onClick={() => setIsSearchActive(false)}
               >
                 <X className="h-4 w-4" />
@@ -71,19 +84,19 @@ export function DashboardHeader({ onMenuClick, userRole }: DashboardHeaderProps)
             )}
           </div>
         </div>
-        
+
         <div className="flex items-center space-x-2">
           {!isSearchActive && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="md:hidden" 
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
               onClick={() => setIsSearchActive(true)}
             >
               <Search className="h-5 w-5" />
             </Button>
           )}
-          
+
           <ModeToggle />
 
           <Button variant="ghost" size="icon" className="relative">
