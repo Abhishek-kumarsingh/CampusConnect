@@ -84,7 +84,7 @@ export function CreateAssignmentDialog({ onAssignmentCreated }: CreateAssignment
     try {
       // Combine date and time for dueDate
       const dueDateTime = new Date(`${values.dueDate}T${values.dueTime}`);
-      
+
       const assignmentData = {
         ...values,
         dueDate: dueDateTime.toISOString(),
@@ -94,8 +94,8 @@ export function CreateAssignmentDialog({ onAssignmentCreated }: CreateAssignment
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
+        credentials: 'include',
         body: JSON.stringify(assignmentData),
       });
 
@@ -106,7 +106,7 @@ export function CreateAssignmentDialog({ onAssignmentCreated }: CreateAssignment
           title: 'Assignment Created',
           description: 'Your assignment has been created successfully.',
         });
-        
+
         form.reset();
         setOpen(false);
         onAssignmentCreated?.();
@@ -143,7 +143,7 @@ export function CreateAssignmentDialog({ onAssignmentCreated }: CreateAssignment
             Create a new assignment for your students. Fill in the details below.
           </DialogDescription>
         </DialogHeader>
-        
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -185,8 +185,8 @@ export function CreateAssignmentDialog({ onAssignmentCreated }: CreateAssignment
                   <FormItem>
                     <FormLabel>Maximum Points</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="number" 
+                      <Input
+                        type="number"
                         placeholder="100"
                         {...field}
                         onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
@@ -205,7 +205,7 @@ export function CreateAssignmentDialog({ onAssignmentCreated }: CreateAssignment
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea 
+                    <Textarea
                       placeholder="Describe the assignment requirements..."
                       className="min-h-[100px]"
                       {...field}
@@ -279,7 +279,7 @@ export function CreateAssignmentDialog({ onAssignmentCreated }: CreateAssignment
                 <FormItem>
                   <FormLabel>Additional Instructions</FormLabel>
                   <FormControl>
-                    <Textarea 
+                    <Textarea
                       placeholder="Any additional instructions for students..."
                       className="min-h-[80px]"
                       {...field}

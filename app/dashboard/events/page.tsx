@@ -32,9 +32,7 @@ export default function DashboardEventsPage() {
   const fetchEvents = async () => {
     try {
       const response = await fetch('/api/events', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -60,9 +58,7 @@ export default function DashboardEventsPage() {
     try {
       const response = await fetch(`/api/events/${eventId}/rsvp`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+        credentials: 'include',
       });
 
       if (response.ok) {

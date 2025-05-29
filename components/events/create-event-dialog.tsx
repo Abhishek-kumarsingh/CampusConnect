@@ -83,8 +83,8 @@ export function CreateEventDialog({ onEventCreated }: CreateEventDialogProps) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
+        credentials: 'include',
         body: JSON.stringify(values),
       });
 
@@ -95,7 +95,7 @@ export function CreateEventDialog({ onEventCreated }: CreateEventDialogProps) {
           title: 'Event Created',
           description: 'Your event has been created successfully.',
         });
-        
+
         form.reset();
         setOpen(false);
         onEventCreated?.();
@@ -132,7 +132,7 @@ export function CreateEventDialog({ onEventCreated }: CreateEventDialogProps) {
             Create a new event for the campus community. Fill in the details below.
           </DialogDescription>
         </DialogHeader>
-        
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -156,7 +156,7 @@ export function CreateEventDialog({ onEventCreated }: CreateEventDialogProps) {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea 
+                    <Textarea
                       placeholder="Describe your event..."
                       className="min-h-[100px]"
                       {...field}
@@ -203,8 +203,8 @@ export function CreateEventDialog({ onEventCreated }: CreateEventDialogProps) {
                   <FormItem>
                     <FormLabel>Max Attendees</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="number" 
+                      <Input
+                        type="number"
                         placeholder="50"
                         {...field}
                         onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}

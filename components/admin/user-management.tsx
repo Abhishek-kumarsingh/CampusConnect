@@ -5,13 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from '@/components/ui/table';
 import {
   DropdownMenu,
@@ -33,13 +33,13 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Search, 
-  MoreHorizontal, 
-  UserPlus, 
-  Edit, 
-  Trash2, 
-  Shield, 
+import {
+  Search,
+  MoreHorizontal,
+  UserPlus,
+  Edit,
+  Trash2,
+  Shield,
   ShieldOff,
   Users,
   GraduationCap,
@@ -72,9 +72,7 @@ export function UserManagement() {
     try {
       setLoading(true);
       const response = await fetch('/api/admin/users', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -103,9 +101,9 @@ export function UserManagement() {
       const response = await fetch(`/api/admin/users/${userId}/toggle-status`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ isActive: !currentStatus }),
       });
 
@@ -135,9 +133,7 @@ export function UserManagement() {
     try {
       const response = await fetch(`/api/admin/users/${userId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+        credentials: 'include',
       });
 
       if (response.ok) {
