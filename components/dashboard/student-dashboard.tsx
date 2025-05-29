@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+// import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDays, Clock, FileText, MessageSquare, Pencil, Users } from "lucide-react";
 import { useEffect } from 'react';
@@ -177,7 +177,13 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                         {assignment.status === 'in-progress' ? 'In Progress' : 'Not Started'}
                       </Badge>
                     </div>
-                    <Progress value={assignment.progress} className="h-2" />
+                    {/* <Progress value={assignment.progress} className="h-2" /> */}
+                    <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                      <div
+                        className="bg-blue-600 h-2 rounded-full"
+                        style={{ width: `${assignment.progress}%` }}
+                      />
+                    </div>
                   </div>
                 ))}
               </CardContent>

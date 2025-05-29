@@ -24,9 +24,10 @@ interface User {
 interface DashboardShellProps {
   userRole: UserRole;
   user?: User;
+  children?: React.ReactNode;
 }
 
-export function DashboardShell({ userRole, user }: DashboardShellProps) {
+export function DashboardShell({ userRole, user, children }: DashboardShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -47,6 +48,12 @@ export function DashboardShell({ userRole, user }: DashboardShellProps) {
   }, [sidebarCollapsed]);
 
   const renderDashboard = () => {
+    // If children are provided, render them instead of default dashboards
+    if (children) {
+      return children;
+    }
+
+    // Default dashboard rendering for the main dashboard page
     switch (userRole) {
       case 'student':
         return <StudentDashboard user={user} />;
