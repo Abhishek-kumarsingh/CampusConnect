@@ -6,100 +6,49 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { EventCard } from './event-card';
-import { Calendar, Filter, Search, Plus } from 'lucide-react';
+import { Calendar, Filter, Search, Plus, Loader2 } from 'lucide-react';
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
+import { useAuth } from '@/lib/auth-context';
+import { useToast } from '@/hooks/use-toast';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
-// Mock event data
-const eventsData = [
-  {
-    id: 1,
-    title: "Tech Innovators Summit",
-    description: "Join the biggest tech event on campus with industry leaders and innovative showcases.",
-    date: "May 15, 2025",
-    time: "10:00 AM - 4:00 PM",
-    location: "Student Center Ballroom",
-    organizer: "Computer Science Department",
-    image: "https://images.pexels.com/photos/2774556/pexels-photo-2774556.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-    category: "conference",
-    attendees: 156,
-    isRsvped: false
-  },
-  {
-    id: 2,
-    title: "Spring Music Festival",
-    description: "Annual music celebration featuring student bands and professional artists.",
-    date: "May 20, 2025",
-    time: "5:00 PM - 10:00 PM",
-    location: "Campus Amphitheater",
-    organizer: "Student Activities Board",
-    image: "https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-    category: "arts",
-    attendees: 320,
-    isRsvped: true
-  },
-  {
-    id: 3,
-    title: "Career Fair: STEM Edition",
-    description: "Connect with top employers in Science, Technology, Engineering, and Mathematics fields.",
-    date: "May 18, 2025",
-    time: "9:00 AM - 3:00 PM",
-    location: "Engineering Building",
-    organizer: "Career Center",
-    image: "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-    category: "career",
-    attendees: 215,
-    isRsvped: false
-  },
-  {
-    id: 4,
-    title: "AI and Machine Learning Workshop",
-    description: "Hands-on workshop learning the fundamentals of AI and practical applications.",
-    date: "May 22, 2025",
-    time: "1:00 PM - 4:00 PM",
-    location: "Tech Hall 201",
-    organizer: "AI Student Society",
-    image: "https://images.pexels.com/photos/8386434/pexels-photo-8386434.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-    category: "workshop",
-    attendees: 78,
-    isRsvped: false
-  },
-  {
-    id: 5,
-    title: "Campus Sustainability Day",
-    description: "Learn about environmental initiatives and participate in campus cleanup.",
-    date: "May 25, 2025",
-    time: "10:00 AM - 2:00 PM",
-    location: "Campus Quad",
-    organizer: "Environmental Club",
-    image: "https://images.pexels.com/photos/2990644/pexels-photo-2990644.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-    category: "community",
-    attendees: 142,
-    isRsvped: false
-  },
-  {
-    id: 6,
-    title: "Entrepreneurship Pitch Competition",
-    description: "Student startups compete for funding and mentorship opportunities.",
-    date: "May 30, 2025",
-    time: "6:00 PM - 9:00 PM",
-    location: "Business Building Auditorium",
-    organizer: "Entrepreneur Club",
-    image: "https://images.pexels.com/photos/3182781/pexels-photo-3182781.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-    category: "competition",
-    attendees: 95,
-    isRsvped: true
-  }
-];
+interface Event {
+  _id: string;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  location: string;
+  category: string;
+  organizer: {
+    _id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+  attendees: any[];
+  tags: string[];
+  image?: string;
+  isApproved: boolean;
+  isPublic: boolean;
+  maxAttendees?: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
-type CategoryFilter = 'all' | 'conference' | 'arts' | 'career' | 'workshop' | 'community' | 'competition';
+type CategoryFilter = 'all' | 'hackathon' | 'seminar' | 'workshop' | 'conference' | 'social' | 'sports' | 'other';
 
 export function EventsPage() {
-  const [events, setEvents] = useState(eventsData);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<CategoryFilter>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     AOS.init({
@@ -108,32 +57,111 @@ export function EventsPage() {
     });
   }, []);
 
-  // Filter events based on category and search term
+  // Fetch events from API
+  const fetchEvents = async (resetPage = false) => {
+    try {
+      setLoading(true);
+      const currentPage = resetPage ? 1 : page;
+
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: '9',
+        upcoming: 'true'
+      });
+
+      if (activeFilter !== 'all') {
+        params.append('category', activeFilter);
+      }
+
+      if (searchTerm) {
+        params.append('search', searchTerm);
+      }
+
+      const response = await fetch(`/api/events?${params}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        if (resetPage) {
+          setEvents(data.events);
+          setPage(1);
+        } else {
+          setEvents(prev => [...prev, ...data.events]);
+        }
+        setHasMore(data.pagination.page < data.pagination.pages);
+      } else {
+        toast({
+          title: "Error",
+          description: data.error || "Failed to fetch events",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong while fetching events",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial fetch and refetch on filter/search changes
   useEffect(() => {
-    let filteredEvents = [...eventsData];
-    
-    // Apply category filter
-    if (activeFilter !== 'all') {
-      filteredEvents = filteredEvents.filter(event => event.category === activeFilter);
-    }
-    
-    // Apply search filter
-    if (searchTerm) {
-      filteredEvents = filteredEvents.filter(
-        event => event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                 event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                 event.location.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-    
-    setEvents(filteredEvents);
+    fetchEvents(true);
   }, [activeFilter, searchTerm]);
 
   // Toggle RSVP status
-  const toggleRsvp = (eventId: number) => {
-    setEvents(events.map(event => 
-      event.id === eventId ? { ...event, isRsvped: !event.isRsvped } : event
-    ));
+  const toggleRsvp = async (eventId: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to RSVP for events",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const event = events.find(e => e._id === eventId);
+      const isCurrentlyRsvped = event?.attendees.some(a => a._id === user.id);
+
+      const response = await fetch(`/api/events/${eventId}/rsvp`, {
+        method: isCurrentlyRsvped ? 'DELETE' : 'POST',
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Update local state
+        setEvents(events.map(event =>
+          event._id === eventId ? data.event : event
+        ));
+
+        toast({
+          title: "Success",
+          description: data.message,
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: data.error || "Failed to update RSVP",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const loadMore = () => {
+    setPage(prev => prev + 1);
+    fetchEvents();
   };
 
   return (
@@ -150,8 +178,8 @@ export function EventsPage() {
             <div className="flex flex-col sm:flex-row justify-center gap-4 max-w-md mx-auto" data-aos="fade-up" data-aos-delay="200">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-indigo-200" />
-                <Input 
-                  placeholder="Search events..." 
+                <Input
+                  placeholder="Search events..."
                   className="pl-10 bg-indigo-700/50 border-indigo-500 text-white placeholder:text-indigo-200"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -164,7 +192,7 @@ export function EventsPage() {
             </div>
           </div>
         </section>
-        
+
         {/* Events Content */}
         <section className="py-12 px-4">
           <div className="max-w-7xl mx-auto">
@@ -179,26 +207,55 @@ export function EventsPage() {
                 Create Event
               </Button>
             </div>
-            
+
             {/* Category Tabs */}
             <Tabs defaultValue="all" value={activeFilter} onValueChange={(value) => setActiveFilter(value as CategoryFilter)} className="mb-8">
               <TabsList className="bg-slate-100 dark:bg-slate-800">
                 <TabsTrigger value="all">All Events</TabsTrigger>
-                <TabsTrigger value="conference">Conferences</TabsTrigger>
+                <TabsTrigger value="hackathon">Hackathons</TabsTrigger>
+                <TabsTrigger value="seminar">Seminars</TabsTrigger>
                 <TabsTrigger value="workshop">Workshops</TabsTrigger>
-                <TabsTrigger value="career">Career</TabsTrigger>
-                <TabsTrigger value="arts">Arts</TabsTrigger>
-                <TabsTrigger value="community">Community</TabsTrigger>
-                <TabsTrigger value="competition">Competitions</TabsTrigger>
+                <TabsTrigger value="conference">Conferences</TabsTrigger>
+                <TabsTrigger value="social">Social</TabsTrigger>
+                <TabsTrigger value="sports">Sports</TabsTrigger>
+                <TabsTrigger value="other">Other</TabsTrigger>
               </TabsList>
             </Tabs>
-            
+
             {/* Event Cards */}
-            {events.length > 0 ? (
+            {loading && events.length === 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm">
+                    <div className="animate-pulse">
+                      <div className="bg-slate-200 dark:bg-slate-700 h-48 rounded-lg mb-4"></div>
+                      <div className="bg-slate-200 dark:bg-slate-700 h-4 rounded mb-2"></div>
+                      <div className="bg-slate-200 dark:bg-slate-700 h-4 rounded w-3/4 mb-4"></div>
+                      <div className="bg-slate-200 dark:bg-slate-700 h-8 rounded"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : events.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {events.map((event, index) => (
-                  <div key={event.id} data-aos="fade-up" data-aos-delay={(index % 3) * 100}>
-                    <EventCard event={event} onRsvpToggle={toggleRsvp} />
+                  <div key={event._id} data-aos="fade-up" data-aos-delay={(index % 3) * 100}>
+                    <EventCard
+                      event={{
+                        id: event._id,
+                        title: event.title,
+                        description: event.description,
+                        date: new Date(event.date).toLocaleDateString(),
+                        time: event.time,
+                        location: event.location,
+                        organizer: event.organizer.name,
+                        image: event.image || "https://images.pexels.com/photos/2774556/pexels-photo-2774556.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+                        category: event.category,
+                        attendees: event.attendees.length,
+                        isRsvped: user ? event.attendees.some(a => a._id === user.id) : false
+                      }}
+                      onRsvpToggle={() => toggleRsvp(event._id)}
+                    />
                   </div>
                 ))}
               </div>
@@ -214,12 +271,24 @@ export function EventsPage() {
                 </Button>
               </div>
             )}
-            
+
             {/* Show More Button */}
-            {events.length > 0 && (
+            {events.length > 0 && hasMore && (
               <div className="flex justify-center mt-10">
-                <Button variant="outline" size="lg">
-                  Load More Events
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={loadMore}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    'Load More Events'
+                  )}
                 </Button>
               </div>
             )}

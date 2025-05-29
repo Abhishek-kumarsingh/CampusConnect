@@ -33,17 +33,46 @@ export function LoginForm() {
 
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    setIsLoading(false);
-    
-    // This is just for demonstration
-    toast({
-      title: "Login Successful",
-      description: "Welcome back to CampusConnect!",
-    });
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Login Successful",
+          description: `Welcome back, ${data.user.name}!`,
+        });
+
+        // Store user data in localStorage
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('token', data.token);
+
+        // Redirect to dashboard
+        window.location.href = '/dashboard';
+      } else {
+        toast({
+          title: "Login Failed",
+          description: data.error || "Invalid credentials",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -59,6 +88,16 @@ export function LoginForm() {
         <CardDescription className="text-center">
           Enter your credentials to access your account
         </CardDescription>
+
+        {/* Demo Credentials */}
+        <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+          <p className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">Demo Credentials:</p>
+          <div className="space-y-1 text-xs text-blue-700 dark:text-blue-300">
+            <div><strong>Student:</strong> student@campusconnect.edu / student123</div>
+            <div><strong>Faculty:</strong> faculty@campusconnect.edu / faculty123</div>
+            <div><strong>Admin:</strong> admin@campusconnect.edu / admin123</div>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -70,9 +109,9 @@ export function LoginForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="you@example.com" 
-                      {...field} 
+                    <Input
+                      placeholder="you@example.com"
+                      {...field}
                       disabled={isLoading}
                     />
                   </FormControl>
@@ -87,10 +126,10 @@ export function LoginForm() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="password" 
-                      placeholder="••••••••" 
-                      {...field} 
+                    <Input
+                      type="password"
+                      placeholder="••••••••"
+                      {...field}
                       disabled={isLoading}
                     />
                   </FormControl>
@@ -98,16 +137,16 @@ export function LoginForm() {
                 </FormItem>
               )}
             />
-            
+
             <div className="text-sm">
-              <Link 
-                href="#" 
+              <Link
+                href="#"
                 className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
               >
                 Forgot your password?
               </Link>
             </div>
-            
+
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <>
@@ -120,7 +159,7 @@ export function LoginForm() {
             </Button>
           </form>
         </Form>
-        
+
         <div className="mt-6">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
@@ -132,7 +171,7 @@ export function LoginForm() {
               </span>
             </div>
           </div>
-          
+
           <div className="mt-6 grid grid-cols-2 gap-3">
             <Button variant="outline" disabled={isLoading}>
               Google
@@ -146,8 +185,8 @@ export function LoginForm() {
       <CardFooter className="flex justify-center border-t border-slate-200 dark:border-slate-700 p-4">
         <p className="text-sm text-slate-600 dark:text-slate-400">
           Don't have an account?{" "}
-          <Link 
-            href="/register" 
+          <Link
+            href="/register"
             className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium"
           >
             Sign up
