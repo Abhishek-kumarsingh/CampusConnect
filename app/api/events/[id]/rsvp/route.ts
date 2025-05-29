@@ -19,13 +19,7 @@ export async function POST(
       );
     }
 
-    // Demo users can't RSVP
-    if (userPayload.userId.startsWith('demo-')) {
-      return NextResponse.json(
-        { error: 'Demo users cannot RSVP to events' },
-        { status: 403 }
-      );
-    }
+    // Allow all authenticated users to RSVP
 
     await connectDB();
 
@@ -106,13 +100,7 @@ export async function DELETE(
       );
     }
 
-    // Demo users can't cancel RSVP
-    if (userPayload.userId.startsWith('demo-')) {
-      return NextResponse.json(
-        { error: 'Demo users cannot cancel RSVP' },
-        { status: 403 }
-      );
-    }
+    // Allow all authenticated users to cancel RSVP
 
     await connectDB();
 
