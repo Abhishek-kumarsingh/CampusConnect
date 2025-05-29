@@ -23,7 +23,7 @@ import {
   ChevronRight,
   Bell,
   LogOut,
-  DivideIcon as LucideIcon
+  type LucideIcon
 } from 'lucide-react';
 
 interface SidebarNavProps {

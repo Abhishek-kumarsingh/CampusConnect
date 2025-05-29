@@ -70,7 +70,11 @@ export function DashboardShell({ userRole, user }: DashboardShellProps) {
         onToggleCollapse={toggleSidebarCollapse}
       />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className={cn(
+        "flex-1 flex flex-col overflow-hidden transition-all duration-300",
+        "lg:ml-64", // Default margin for expanded sidebar
+        sidebarCollapsed && "lg:ml-16" // Reduced margin for collapsed sidebar
+      )}>
         <DashboardHeader
           onMenuClick={toggleSidebar}
           userRole={userRole}
@@ -78,11 +82,7 @@ export function DashboardShell({ userRole, user }: DashboardShellProps) {
           sidebarCollapsed={sidebarCollapsed}
         />
 
-        <main className={cn(
-          "flex-1 overflow-y-auto pb-10 transition-all duration-300",
-          "lg:ml-64", // Default margin for expanded sidebar
-          sidebarCollapsed && "lg:ml-16" // Reduced margin for collapsed sidebar
-        )}>
+        <main className="flex-1 overflow-y-auto pb-10">
           <div className="py-6 px-4 sm:px-6 lg:px-8">
             {renderDashboard()}
           </div>

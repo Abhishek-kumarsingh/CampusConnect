@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     const userPayload = getUserFromRequest(request);
-    
+
     if (!userPayload) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -55,10 +55,10 @@ export async function GET(request: NextRequest) {
       // Add submission status for students
       const assignmentsWithStatus = assignments.map(assignment => {
         const assignmentObj = assignment.toObject();
-        
+
         if (userPayload.role === 'student') {
           const submission = assignment.submissions.find(
-            sub => sub.student._id.toString() === userPayload.userId
+            (sub: any) => sub.student._id.toString() === userPayload.userId
           );
           assignmentObj.submissionStatus = submission ? submission.status : 'not_submitted';
           assignmentObj.grade = submission?.grade;
@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const userPayload = getUserFromRequest(request);
-    
+
     if (!userPayload) {
       return NextResponse.json(
         { error: 'Unauthorized' },

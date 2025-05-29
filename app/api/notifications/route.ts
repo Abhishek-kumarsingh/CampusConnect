@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     const userPayload = getUserFromRequest(request);
-    
+
     if (!userPayload) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
       const notificationsWithReadStatus = notifications.map(notification => {
         const notificationObj = notification.toObject();
         const readEntry = notification.isRead.find(
-          entry => entry.user.toString() === userPayload.userId
+          (entry: any) => entry.user.toString() === userPayload.userId
         );
         notificationObj.isReadByUser = !!readEntry;
         notificationObj.readAt = readEntry?.readAt;
@@ -123,9 +123,9 @@ export async function GET(request: NextRequest) {
 
       // Filter based on role and unread status
       let filteredNotifications = mockNotifications;
-      
+
       if (userPayload.role === 'faculty') {
-        filteredNotifications = mockNotifications.filter(n => 
+        filteredNotifications = mockNotifications.filter(n =>
           n.type !== 'grade' || n.sender.role === 'admin'
         );
       }
@@ -154,7 +154,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const userPayload = getUserFromRequest(request);
-    
+
     if (!userPayload) {
       return NextResponse.json(
         { error: 'Unauthorized' },

@@ -12,7 +12,7 @@ export async function POST(
 ) {
   try {
     const userPayload = getUserFromRequest(request);
-    
+
     if (!userPayload) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -33,7 +33,7 @@ export async function POST(
 
       // Check if user already marked as read
       const existingRead = notification.isRead.find(
-        entry => entry.user.toString() === userPayload.userId
+        (entry: any) => entry.user.toString() === userPayload.userId
       );
 
       if (!existingRead) {
@@ -73,7 +73,7 @@ export async function DELETE(
 ) {
   try {
     const userPayload = getUserFromRequest(request);
-    
+
     if (!userPayload) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -94,7 +94,7 @@ export async function DELETE(
 
       // Remove read status for this user
       notification.isRead = notification.isRead.filter(
-        entry => entry.user.toString() !== userPayload.userId
+        (entry: any) => entry.user.toString() !== userPayload.userId
       );
       await notification.save();
 

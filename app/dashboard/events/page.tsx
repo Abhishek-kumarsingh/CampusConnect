@@ -281,8 +281,8 @@ export default function DashboardEventsPage() {
                       <Avatar className="h-6 w-6">
                         <AvatarFallback className="text-xs">
                           {typeof event.organizer === 'string'
-                            ? event.organizer.split(' ').map(n => n[0]).join('')
-                            : event.organizer?.name?.split(' ').map(n => n[0]).join('') || 'OR'
+                            ? event.organizer.split(' ').map((n: string) => n[0]).join('')
+                            : event.organizer?.name?.split(' ').map((n: string) => n[0]).join('') || 'OR'
                           }
                         </AvatarFallback>
                       </Avatar>
@@ -306,7 +306,7 @@ export default function DashboardEventsPage() {
                   </div>
 
                   <div className="flex flex-wrap gap-1 mt-3">
-                    {event.tags.map((tag) => (
+                    {event.tags.map((tag: string) => (
                       <Badge key={tag} variant="secondary" className="text-xs">
                         {tag}
                       </Badge>

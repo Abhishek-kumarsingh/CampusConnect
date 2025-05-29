@@ -181,53 +181,53 @@ export const mockDatabase = {
   events: {
     find: (query: any = {}) => {
       let filtered = [...eventsStore];
-      
+
       if (query.category && query.category !== 'all') {
         filtered = filtered.filter(event => event.category === query.category);
       }
-      
+
       if (query.search) {
         const searchLower = query.search.toLowerCase();
-        filtered = filtered.filter(event => 
+        filtered = filtered.filter(event =>
           event.title.toLowerCase().includes(searchLower) ||
           event.description.toLowerCase().includes(searchLower) ||
           event.tags.some(tag => tag.toLowerCase().includes(searchLower))
         );
       }
-      
+
       return filtered;
     },
-    
+
     findById: (id: string) => {
       return eventsStore.find(event => event._id === id);
     },
-    
+
     updateRsvp: (eventId: string, userId: string, action: 'add' | 'remove') => {
       const eventIndex = eventsStore.findIndex(event => event._id === eventId);
       if (eventIndex === -1) return null;
-      
-      const event = eventsStore[eventIndex];
+
+      const event = eventsStore[eventIndex] as any;
       const user = usersStore.find(u => u._id === userId);
       if (!user) return null;
-      
+
       if (action === 'add') {
-        if (!event.attendees.some(a => a._id === userId)) {
+        if (!event.attendees.some((a: any) => a._id === userId)) {
           event.attendees.push(user);
         }
       } else {
-        event.attendees = event.attendees.filter(a => a._id !== userId);
+        event.attendees = event.attendees.filter((a: any) => a._id !== userId);
       }
-      
+
       eventsStore[eventIndex] = event;
       return event;
     }
   },
-  
+
   users: {
     findByEmail: (email: string) => {
       return usersStore.find(user => user.email === email);
     },
-    
+
     findById: (id: string) => {
       return usersStore.find(user => user._id === id);
     }

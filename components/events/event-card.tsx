@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 interface Event {
-  id: number;
+  id: string;
   title: string;
   description: string;
   date: string;
@@ -22,12 +22,12 @@ interface Event {
 
 interface EventCardProps {
   event: Event;
-  onRsvpToggle: (eventId: number) => void;
+  onRsvpToggle: (eventId: string) => void;
 }
 
 export function EventCard({ event, onRsvpToggle }: EventCardProps) {
   const [isHovered, setIsHovered] = useState(false);
-  
+
   const getCategoryColor = (category: string) => {
     switch(category) {
       case 'conference':
@@ -49,14 +49,14 @@ export function EventCard({ event, onRsvpToggle }: EventCardProps) {
 
   return (
     <Card className="overflow-hidden hover:shadow-md transition-all border-slate-200 dark:border-slate-700">
-      <div 
+      <div
         className="relative h-48 overflow-hidden"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <img 
-          src={event.image} 
-          alt={event.title} 
+        <img
+          src={event.image}
+          alt={event.title}
           className={cn(
             "object-cover w-full h-full transition-transform duration-500",
             isHovered ? "scale-110" : "scale-100"
@@ -68,7 +68,7 @@ export function EventCard({ event, onRsvpToggle }: EventCardProps) {
           </Badge>
         </div>
       </div>
-      
+
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <h3 className="font-bold text-lg line-clamp-1">{event.title}</h3>
@@ -82,7 +82,7 @@ export function EventCard({ event, onRsvpToggle }: EventCardProps) {
           {event.location}
         </div>
       </CardHeader>
-      
+
       <CardContent>
         <p className="text-sm text-slate-600 dark:text-slate-300 line-clamp-3">{event.description}</p>
         <div className="flex items-center mt-4 text-sm">
@@ -90,13 +90,13 @@ export function EventCard({ event, onRsvpToggle }: EventCardProps) {
           <span className="text-slate-500">{event.attendees} attending</span>
         </div>
       </CardContent>
-      
+
       <CardFooter className="flex justify-between">
         <Button variant="outline" size="sm" asChild>
           <Link href={`/events/${event.id}`}>Details</Link>
         </Button>
-        <Button 
-          size="sm" 
+        <Button
+          size="sm"
           variant={event.isRsvped ? "secondary" : "default"}
           onClick={() => onRsvpToggle(event.id)}
         >

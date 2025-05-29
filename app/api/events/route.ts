@@ -134,13 +134,21 @@ export async function POST(request: NextRequest) {
 
     await connectDB();
 
-    // Create event
-    const event = new Event({
+    // Create event with proper organizer handling
+    const eventPayload = {
       ...eventData,
       organizer: userPayload.userId.startsWith('demo-') ? null : userPayload.userId,
       isApproved: userPayload.role === 'admin', // Auto-approve for admin
       attendees: []
-    });
+    };
+
+    // Ensure category is valid
+    const validCategories = ['academic', 'social', 'sports', 'cultural', 'workshop', 'seminar', 'conference', 'hackathon', 'other'];
+    if (!validCategories.includes(eventPayload.category)) {
+      eventPayload.category = 'other';
+    }
+
+    const event = new Event(eventPayload);
 
     await event.save();
 

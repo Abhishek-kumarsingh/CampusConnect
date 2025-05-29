@@ -39,7 +39,14 @@ export function DashboardHeader({ onMenuClick, userRole, user, sidebarCollapsed 
   const [isSearchActive, setIsSearchActive] = useState(false);
 
   // Use real user data or fallback to mock data
-  const userData = user || {
+  const userData = user ? {
+    ...user,
+    avatar: userRole === 'student' ?
+            'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=150' :
+            userRole === 'faculty' ?
+            'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&w=150' :
+            'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=150',
+  } : {
     name: userRole === 'student' ? 'Alex Johnson' :
           userRole === 'faculty' ? 'Dr. Sarah Miller' : 'Admin User',
     email: `${userRole}@example.com`,
@@ -53,14 +60,16 @@ export function DashboardHeader({ onMenuClick, userRole, user, sidebarCollapsed 
   return (
     <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30">
       <div className="px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center lg:w-64">
+        <div className={`flex items-center transition-all duration-300 ${sidebarCollapsed ? 'lg:w-16' : 'lg:w-64'}`}>
           <Button variant="ghost" size="icon" onClick={onMenuClick} className="lg:hidden">
             <Menu className="h-6 w-6" />
           </Button>
-          <div className="hidden lg:flex items-center ml-2">
-            <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400">Campus</span>
-            <span className="text-xl font-bold text-slate-800 dark:text-white">Connect</span>
-          </div>
+          {!sidebarCollapsed && (
+            <div className="hidden lg:flex items-center ml-2">
+              <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400">Campus</span>
+              <span className="text-xl font-bold text-slate-800 dark:text-white">Connect</span>
+            </div>
+          )}
         </div>
 
         {/* Search Bar */}

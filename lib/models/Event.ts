@@ -6,8 +6,8 @@ export interface IEvent extends Document {
   date: Date;
   time: string;
   location: string;
-  category: 'hackathon' | 'seminar' | 'workshop' | 'conference' | 'social' | 'sports' | 'other';
-  organizer: mongoose.Types.ObjectId;
+  category: 'academic' | 'social' | 'sports' | 'cultural' | 'workshop' | 'seminar' | 'conference' | 'hackathon' | 'other';
+  organizer: mongoose.Types.ObjectId | null;
   maxAttendees?: number;
   attendees: mongoose.Types.ObjectId[];
   tags: string[];
@@ -57,14 +57,15 @@ const EventSchema: Schema = new Schema({
   },
   category: {
     type: String,
-    enum: ['hackathon', 'seminar', 'workshop', 'conference', 'social', 'sports', 'other'],
+    enum: ['academic', 'social', 'sports', 'cultural', 'workshop', 'seminar', 'conference', 'hackathon', 'other'],
     required: [true, 'Event category is required'],
     default: 'other'
   },
   organizer: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: [true, 'Event organizer is required']
+    required: false,
+    default: null
   },
   maxAttendees: {
     type: Number,
