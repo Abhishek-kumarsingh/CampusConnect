@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,11 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { 
-  Calendar, 
-  Clock, 
-  MapPin, 
-  Users, 
+import { CreateEventDialog } from '@/components/events/create-event-dialog';
+import { useToast } from '@/hooks/use-toast';
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  Users,
   Search,
   Filter,
   Plus,
@@ -21,9 +24,72 @@ import {
 
 export default function DashboardEventsPage() {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const [events, setEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock events data - in real app, fetch from API
-  const events = [
+  // Fetch events from API
+  const fetchEvents = async () => {
+    try {
+      const response = await fetch('/api/events', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setEvents(data.events || []);
+      } else {
+        // Fallback to mock data if API fails
+        setEvents(mockEvents);
+      }
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      setEvents(mockEvents);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const handleRSVP = async (eventId: string) => {
+    try {
+      const response = await fetch(`/api/events/${eventId}/rsvp`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Success',
+          description: 'Successfully registered for the event!',
+        });
+        fetchEvents(); // Refresh events to update registration status
+      } else {
+        const data = await response.json();
+        toast({
+          title: 'Error',
+          description: data.error || 'Failed to register for event',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Something went wrong. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Mock events data - fallback when API is not available
+  const mockEvents = [
     {
       id: 1,
       title: "Tech Innovators Summit 2024",
@@ -107,11 +173,11 @@ export default function DashboardEventsPage() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
   };
 
@@ -125,10 +191,7 @@ export default function DashboardEventsPage() {
           </p>
         </div>
         {(user?.role === 'faculty' || user?.role === 'admin') && (
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Event
-          </Button>
+          <CreateEventDialog onEventCreated={fetchEvents} />
         )}
       </div>
 
@@ -221,11 +284,14 @@ export default function DashboardEventsPage() {
                     <div className="flex items-center gap-2">
                       <Avatar className="h-6 w-6">
                         <AvatarFallback className="text-xs">
-                          {event.organizer.split(' ').map(n => n[0]).join('')}
+                          {typeof event.organizer === 'string'
+                            ? event.organizer.split(' ').map(n => n[0]).join('')
+                            : event.organizer?.name?.split(' ').map(n => n[0]).join('') || 'OR'
+                          }
                         </AvatarFallback>
                       </Avatar>
                       <span className="text-sm text-slate-600 dark:text-slate-400">
-                        Organized by {event.organizer}
+                        Organized by {typeof event.organizer === 'string' ? event.organizer : event.organizer?.name || 'Unknown Organizer'}
                       </span>
                     </div>
                     <div className="flex gap-2">
@@ -233,7 +299,11 @@ export default function DashboardEventsPage() {
                         <ExternalLink className="h-4 w-4 mr-1" />
                         Details
                       </Button>
-                      <Button size="sm" disabled={event.isRegistered}>
+                      <Button
+                        size="sm"
+                        disabled={event.isRegistered || loading}
+                        onClick={() => handleRSVP(event.id)}
+                      >
                         {event.isRegistered ? 'Registered' : 'Register'}
                       </Button>
                     </div>

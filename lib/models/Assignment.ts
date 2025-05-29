@@ -7,18 +7,20 @@ export interface IAssignment extends Document {
   instructor: mongoose.Types.ObjectId;
   dueDate: Date;
   maxPoints: number;
+  submissionType: 'file' | 'text' | 'both';
   attachments: string[];
   submissions: {
     student: mongoose.Types.ObjectId;
     submittedAt: Date;
     files: string[];
+    textSubmission?: string;
     grade?: number;
     feedback?: string;
     status: 'submitted' | 'graded' | 'late';
   }[];
   isPublished: boolean;
-  allowLateSubmissions: boolean;
-  instructions: string;
+  allowLateSubmission: boolean;
+  instructions?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -63,6 +65,12 @@ const AssignmentSchema: Schema = new Schema({
     min: [1, 'Maximum points must be at least 1'],
     max: [1000, 'Maximum points cannot exceed 1000']
   },
+  submissionType: {
+    type: String,
+    enum: ['file', 'text', 'both'],
+    default: 'file',
+    required: [true, 'Submission type is required']
+  },
   attachments: [{
     type: String,
     trim: true
@@ -81,10 +89,14 @@ const AssignmentSchema: Schema = new Schema({
       type: String,
       trim: true
     }],
+    textSubmission: {
+      type: String,
+      maxlength: [10000, 'Text submission cannot be more than 10000 characters']
+    },
     grade: {
       type: Number,
       min: 0,
-      max: function() { return this.parent().maxPoints; }
+      max: 1000
     },
     feedback: {
       type: String,
@@ -100,7 +112,7 @@ const AssignmentSchema: Schema = new Schema({
     type: Boolean,
     default: false
   },
-  allowLateSubmissions: {
+  allowLateSubmission: {
     type: Boolean,
     default: true
   },

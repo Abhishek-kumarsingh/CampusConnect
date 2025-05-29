@@ -50,17 +50,42 @@ export function RegisterForm() {
 
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    setIsLoading(false);
-    
-    // This is just for demonstration
-    toast({
-      title: "Account created successfully",
-      description: "Welcome to CampusConnect!",
-    });
+
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Account created successfully",
+          description: "Welcome to CampusConnect! You can now log in.",
+        });
+
+        // Redirect to login page
+        window.location.href = '/login';
+      } else {
+        toast({
+          title: "Registration Failed",
+          description: data.error || "Something went wrong",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -87,9 +112,9 @@ export function RegisterForm() {
                 <FormItem>
                   <FormLabel>Full Name</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="John Doe" 
-                      {...field} 
+                    <Input
+                      placeholder="John Doe"
+                      {...field}
                       disabled={isLoading}
                     />
                   </FormControl>
@@ -97,7 +122,7 @@ export function RegisterForm() {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="email"
@@ -105,9 +130,9 @@ export function RegisterForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="you@example.com" 
-                      {...field} 
+                    <Input
+                      placeholder="you@example.com"
+                      {...field}
                       disabled={isLoading}
                     />
                   </FormControl>
@@ -115,7 +140,7 @@ export function RegisterForm() {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="password"
@@ -123,10 +148,10 @@ export function RegisterForm() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="password" 
-                      placeholder="••••••••" 
-                      {...field} 
+                    <Input
+                      type="password"
+                      placeholder="••••••••"
+                      {...field}
                       disabled={isLoading}
                     />
                   </FormControl>
@@ -134,7 +159,7 @@ export function RegisterForm() {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="confirmPassword"
@@ -142,10 +167,10 @@ export function RegisterForm() {
                 <FormItem>
                   <FormLabel>Confirm Password</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="password" 
-                      placeholder="••••••••" 
-                      {...field} 
+                    <Input
+                      type="password"
+                      placeholder="••••••••"
+                      {...field}
                       disabled={isLoading}
                     />
                   </FormControl>
@@ -153,7 +178,7 @@ export function RegisterForm() {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="role"
@@ -197,7 +222,7 @@ export function RegisterForm() {
                 </FormItem>
               )}
             />
-            
+
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <>
@@ -214,8 +239,8 @@ export function RegisterForm() {
       <CardFooter className="flex justify-center border-t border-slate-200 dark:border-slate-700 p-4">
         <p className="text-sm text-slate-600 dark:text-slate-400">
           Already have an account?{" "}
-          <Link 
-            href="/login" 
+          <Link
+            href="/login"
             className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium"
           >
             Sign in

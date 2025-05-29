@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import User from '@/lib/models/User';
 import Event from '@/lib/models/Event';
+import Assignment from '@/lib/models/Assignment';
+import Notification from '@/lib/models/Notification';
 import { hashPassword, DEMO_CREDENTIALS } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
@@ -13,6 +15,8 @@ export async function POST() {
     // Clear existing data
     await User.deleteMany({});
     await Event.deleteMany({});
+    await Assignment.deleteMany({});
+    await Notification.deleteMany({});
 
     // Create demo users
     const demoUsers = [];
@@ -141,17 +145,116 @@ export async function POST() {
       }
     ];
 
+    const createdEvents = [];
     for (const eventData of demoEvents) {
       const event = new Event(eventData);
       await event.save();
+      createdEvents.push(event);
+    }
+
+    // Create demo assignments
+    const demoAssignments = [
+      {
+        title: 'Data Structures Project',
+        description: 'Implement a binary search tree with insertion, deletion, and traversal operations. Include comprehensive test cases and documentation.',
+        course: 'CS 301 - Data Structures',
+        instructor: facultyUser._id,
+        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+        maxPoints: 100,
+        submissionType: 'file',
+        isPublished: true,
+        allowLateSubmission: false,
+        instructions: 'Submit your code as a ZIP file with proper documentation and test cases.',
+        submissions: []
+      },
+      {
+        title: 'Database Design Assignment',
+        description: 'Design and implement a relational database schema for a library management system. Include entity-relationship diagrams and normalization analysis.',
+        course: 'CS 401 - Database Systems',
+        instructor: facultyUser._id,
+        dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 days from now
+        maxPoints: 80,
+        submissionType: 'both',
+        isPublished: true,
+        allowLateSubmission: true,
+        instructions: 'Submit both the database schema file and a written report explaining your design decisions.',
+        submissions: []
+      },
+      {
+        title: 'Algorithm Analysis Report',
+        description: 'Analyze the time and space complexity of various sorting algorithms. Implement at least three different sorting methods and compare their performance.',
+        course: 'CS 301 - Data Structures',
+        instructor: facultyUser._id,
+        dueDate: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000), // 21 days from now
+        maxPoints: 90,
+        submissionType: 'both',
+        isPublished: true,
+        allowLateSubmission: true,
+        instructions: 'Submit code implementation and a detailed analysis report.',
+        submissions: []
+      }
+    ];
+
+    const createdAssignments = [];
+    for (const assignmentData of demoAssignments) {
+      const assignment = new Assignment(assignmentData);
+      await assignment.save();
+      createdAssignments.push(assignment);
+    }
+
+    // Create demo notifications
+    const studentUser = demoUsers.find(u => u.role === 'student');
+    const demoNotifications = [
+      {
+        title: 'Welcome to CampusConnect!',
+        message: 'Your account has been created successfully. Explore the platform and connect with your campus community.',
+        type: 'system',
+        sender: adminUser._id,
+        recipients: [studentUser._id, facultyUser._id],
+        priority: 'medium',
+        isRead: []
+      },
+      {
+        title: 'New Assignment Posted',
+        message: 'A new assignment "Data Structures Project" has been posted for CS 301.',
+        type: 'assignment',
+        sender: facultyUser._id,
+        recipients: [studentUser._id],
+        priority: 'high',
+        isRead: [],
+        relatedEntity: {
+          entityType: 'assignment',
+          entityId: createdAssignments[0]._id
+        }
+      },
+      {
+        title: 'Event Registration Confirmed',
+        message: 'You have successfully registered for the Tech Innovators Summit 2024.',
+        type: 'event',
+        sender: adminUser._id,
+        recipients: [studentUser._id],
+        priority: 'medium',
+        isRead: [],
+        relatedEntity: {
+          entityType: 'event',
+          entityId: createdEvents[0]._id
+        }
+      }
+    ];
+
+    for (const notificationData of demoNotifications) {
+      const notification = new Notification(notificationData);
+      await notification.save();
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Demo data seeded successfully',
+      message: 'Demo data seeded successfully with comprehensive content',
       data: {
         users: demoUsers.length,
-        events: demoEvents.length
+        events: createdEvents.length,
+        assignments: createdAssignments.length,
+        notifications: demoNotifications.length
       }
     });
 

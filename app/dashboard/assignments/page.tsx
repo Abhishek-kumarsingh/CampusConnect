@@ -7,13 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { CreateAssignmentDialog } from '@/components/assignments/create-assignment-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Calendar, 
-  Clock, 
-  FileText, 
-  Plus, 
-  Search, 
+import {
+  Calendar,
+  Clock,
+  FileText,
+  Plus,
+  Search,
   BookOpen,
   CheckCircle,
   AlertCircle,
@@ -111,12 +112,12 @@ export default function AssignmentsPage() {
   const filteredAssignments = assignments.filter(assignment => {
     const matchesSearch = assignment.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          assignment.course.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     if (activeTab === 'all') return matchesSearch;
     if (activeTab === 'pending') return matchesSearch && assignment.submissionStatus === 'not_submitted';
     if (activeTab === 'submitted') return matchesSearch && ['submitted', 'graded'].includes(assignment.submissionStatus || '');
     if (activeTab === 'graded') return matchesSearch && assignment.submissionStatus === 'graded';
-    
+
     return matchesSearch;
   });
 
@@ -164,17 +165,14 @@ export default function AssignmentsPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Assignments</h1>
           <p className="text-muted-foreground">
-            {user?.role === 'student' 
-              ? 'View and submit your assignments' 
+            {user?.role === 'student'
+              ? 'View and submit your assignments'
               : 'Manage and grade student assignments'
             }
           </p>
         </div>
         {user?.role === 'faculty' && (
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Create Assignment
-          </Button>
+          <CreateAssignmentDialog onAssignmentCreated={fetchAssignments} />
         )}
       </div>
 
@@ -259,7 +257,7 @@ export default function AssignmentsPage() {
                     <p className="text-sm text-muted-foreground mb-4">
                       {assignment.description}
                     </p>
-                    
+
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
@@ -272,7 +270,7 @@ export default function AssignmentsPage() {
                           </Badge>
                         )}
                       </div>
-                      
+
                       <div className="flex gap-2">
                         {user?.role === 'student' && assignment.grade && (
                           <Badge variant="secondary">
